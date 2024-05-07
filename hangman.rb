@@ -1,7 +1,7 @@
 class Hangman
 
   def initialize
-    @word = File.read("google-10000-english-no-swears.txt").split("\n").sample().downcase
+    @word = File.read("google-10000-english-no-swears.txt").split("\n").sample.downcase
     @word_state = Array.new(@word.length, "_")
     @lives = 6
   end
@@ -32,9 +32,20 @@ class Hangman
     end
   end
 
+  def new_or_load
+    puts "New game (1) or Load game (2)?"
+    gets.chomp.to_i
+  end
+
+  def load_game
+    # code here
+  end
+
   def play
     welcome
     while @lives > 0
+      new new_or_load == 2 ? load_game : nil
+
       display_word
       display_lives
 
