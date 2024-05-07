@@ -7,20 +7,21 @@ class Hangman
   end
 
   def welcome
-    puts "Welcome to Hangman!"
+    puts "Welcome to Hangman!\n"
   end
 
   def make_guess
     puts "Please enter your guess:"
-    gets.chomp
+    gets.chomp.downcase
   end
 
   def display_word
     puts @word_state.join(" ")
+    puts
   end
 
   def display_lives
-    puts "You have #{@lives} lives left."
+    puts "You have #{@lives} lives left.\n"
   end
 
   def update_word_state(guess)
@@ -40,15 +41,20 @@ class Hangman
       guess = make_guess
 
       if @word.include?(guess)
+        puts "Correct guess!"
         update_word_state(guess)
       else
-        puts "Sorry, wrong guess! Try again."
+        puts "Wrong guess!"
         @lives -= 1
       end
 
       if @word_state.join("") == @word
         puts "Congratulations! You won!"
         break
+      end
+
+      if @lives == 0
+        puts "Sorry, you lost! The word was #{@word}."
       end
     end
   end
