@@ -1,4 +1,4 @@
-require 'yaml'
+require 'json'
 
 class Hangman
   attr_accessor :word, :word_state, :lives
@@ -14,7 +14,7 @@ class Hangman
   end
 
   def make_guess
-    puts "Please enter your guess:"
+    puts "Please enter your guess. Enter 1 to save game: "
     gets.chomp.downcase
   end
 
@@ -41,19 +41,30 @@ class Hangman
   end
 
   def load_game
-    obj = YAML.load(File.read("save.yml"), permitted_classes: [Hangman])
-    @word = obj.word
-    @word_state = obj.word_state
-    @lives = obj.lives
+    if File.exist?("save.json") && !File.zero?("save.json")
+      save = JSON.parse(File.read("save.json"))
+      @word = save["word"]
+      @word_state = save["word_state"]
+      @lives = save["lives"]
+      puts "Game loaded!"
+    else
+      puts "No saved game found. Starting new game."
+    end
   end
 
-  def save_game?
-    puts "Do you want to save the game? (y/n)"
-    if gets.chomp == "y"
-      File.open("save.yml", "w") { |file| file.write(YAML.dump(self)) }
-      puts "Game saved!"
-      exit
+  def save_game
+    save = {
+      "word" => @word,
+      "word_state" => @word_state,
+      "lives" => @lives
+    }
+
+    File.open("save.json", "w") do |f|
+      f.write(save.to_json)
     end
+
+    puts "Game saved!"
+    exit
   end
 
   def play
@@ -64,13 +75,14 @@ class Hangman
     while @lives > 0
       display_word
       display_lives
-      save_game?
 
       guess = make_guess
 
       if @word.include?(guess)
         puts "Correct guess!"
         update_word_state(guess)
+      elsif guess == "1"
+        save_game
       else
         puts "Wrong guess!"
         @lives -= 1
@@ -78,7 +90,6 @@ class Hangman
 
       if @word_state.join("") == @word
         puts "Congratulations! You won!"
-        File.open("save.yml", "w")
         break
       end
 
