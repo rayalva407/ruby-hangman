@@ -1,4 +1,7 @@
+require 'yaml'
+
 class Hangman
+  attr_accessor :word, :word_state, :lives
 
   def initialize
     @word = File.read("google-10000-english-no-swears.txt").split("\n").sample.downcase
@@ -38,16 +41,30 @@ class Hangman
   end
 
   def load_game
-    # code here
+    obj = YAML.load(File.read("save.yml"), permitted_classes: [Hangman])
+    @word = obj.word
+    @word_state = obj.word_state
+    @lives = obj.lives
+  end
+
+  def save_game?
+    puts "Do you want to save the game? (y/n)"
+    if gets.chomp == "y"
+      File.open("save.yml", "w") { |file| file.write(YAML.dump(self)) }
+      puts "Game saved!"
+      exit
+    end
   end
 
   def play
     welcome
-    while @lives > 0
-      new new_or_load == 2 ? load_game : nil
 
+    new_or_load == 2 ? load_game : nil
+
+    while @lives > 0
       display_word
       display_lives
+      save_game?
 
       guess = make_guess
 
@@ -61,6 +78,7 @@ class Hangman
 
       if @word_state.join("") == @word
         puts "Congratulations! You won!"
+        File.open("save.yml", "w")
         break
       end
 

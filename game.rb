@@ -1,5 +1,2 @@
 require './hangman'
-
-hangman = Hangman.new
-
-hangman.play
+Hangman.new.play
